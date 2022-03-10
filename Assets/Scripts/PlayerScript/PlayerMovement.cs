@@ -9,7 +9,9 @@ public class PlayerMovement : MonoBehaviour
     public float fallMultiplier = 5.5f;
     public float lowJumpMultiplier = 3f;
 
-    [SerializeField] private LayerMask jumpLayerMask;
+    [SerializeField] private Transform groundCheckObject; // object to check for ground
+    [SerializeField] private float groundedRadius = 5.0f; // radius up to where ground is checked
+    [SerializeField] private LayerMask groundLayers; // all ground layers
 
     private Rigidbody2D rb;
     private CapsuleCollider2D capsuleCollider2D;
@@ -74,12 +76,6 @@ public class PlayerMovement : MonoBehaviour
             jump = false;
         }
 
-        // play jump animation with respect to character going up or down in air
-        if(rb.velocity.y > 0)
-            anim.SetTrigger("trigJump");
-        else if (rb.velocity.y < 0)
-            anim.SetBool("isFalling", true);
-
         if(rb.velocity.y < 0)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
@@ -91,12 +87,14 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsGrounded()
     {
-        float extraheightTest = 5f;
-        RaycastHit2D raycastHit = Physics2D.CapsuleCast(capsuleCollider2D.bounds.center, capsuleCollider2D.bounds.size,CapsuleDirection2D.Vertical ,0f ,Vector2.down, extraheightTest, jumpLayerMask);
+        // check collision with ground
+        Collider2D[] groundColliders = Physics2D.OverlapCircleAll(groundCheckObject.position, groundedRadius, groundLayers);
 
-        Debug.Log(raycastHit.collider.name);
-
-        return raycastHit.collider != null;
+        // if there is any collisions with "ground" from ground layer, return true
+        if (groundColliders.Length > 0)
+            return true;
+        else
+            return false;
     }
 
     private void PlayerAnimations(bool isGrounded)
@@ -110,7 +108,23 @@ public class PlayerMovement : MonoBehaviour
             anim.SetBool("isRunning", false);
         }
 
-        if (isGrounded)
+        if (!isGrounded)
+            anim.SetBool("isJumping", true);
+        else
+            anim.SetBool("isJumping", false);
+
+        if (!isGrounded && rb.velocity.y < 0)
+            anim.SetBool("isFalling", true);
+        else
             anim.SetBool("isFalling", false);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // don't do anything if ground check object is not assigned (or is null)
+        if (groundCheckObject == null)
+            return;
+
+        Gizmos.DrawWireSphere(groundCheckObject.position, groundedRadius);
     }
 }
