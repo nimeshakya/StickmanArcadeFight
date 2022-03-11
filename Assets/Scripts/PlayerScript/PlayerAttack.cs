@@ -6,6 +6,10 @@ public class PlayerAttack : MonoBehaviour
 {
     private Animator anim;
 
+    [SerializeField] private Transform hitCheckPoint;
+    [SerializeField] private float hitCheckRadius = 5.0f;
+    [SerializeField] private LayerMask enemylayers;
+
     private bool canAttack = true; // player can attack or not
 
     private void Awake()
@@ -33,9 +37,21 @@ public class PlayerAttack : MonoBehaviour
             canAttack = false;
             anim.SetTrigger("trigAttack");
 
-            // call function to do damage and stuff
+            GiveAttackDamage(4.0f); // give damage of 4.0f
 
             StartCoroutine(CanAttackCoolDown());
+        }
+    }
+
+    private void GiveAttackDamage(float amount)
+    {
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(hitCheckPoint.position, hitCheckRadius, enemylayers);
+
+        foreach(Collider2D enemy in hitEnemies)
+        {
+            // if the enemy in enemy layer has tag of "Enemy", give damage
+            if (enemy.CompareTag("Enemy"))
+                enemy.GetComponent<EnemyController>().TakeDamage(amount);
         }
     }
 
@@ -43,5 +59,13 @@ public class PlayerAttack : MonoBehaviour
     {
         yield return new WaitForSeconds(0.25f);
         canAttack = true;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (hitCheckPoint == null)
+            return;
+
+        Gizmos.DrawWireSphere(hitCheckPoint.position, hitCheckRadius);
     }
 }

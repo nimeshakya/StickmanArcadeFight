@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 10.0f;
+    private float currentSpeed;
     public float jumpForce = 10.0f;
     public float fallMultiplier = 5.5f;
     public float lowJumpMultiplier = 3f;
@@ -20,7 +21,6 @@ public class PlayerMovement : MonoBehaviour
 
     private float movementX;
     private bool jump;
-    private bool isGrounded;
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentSpeed = moveSpeed;
     }
 
     // Update is called once per frame
@@ -41,12 +41,15 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerMoveInput();
         PlayerAnimations(IsGrounded());
+        LockPlayerMoveInAir();
     }
 
     private void FixedUpdate()
     {
         MovePlayer();
+        DirectedJumpPlayer();
         JumpPlayer();
+        MultiplyFall();
     }
 
     void PlayerMoveInput()
@@ -61,13 +64,10 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
-        Vector2 position = transform.position;
-        if (movementX > 0 || movementX < 0)
-            position.x += movementX * moveSpeed * Time.deltaTime;
-
-        transform.position = position;
+        rb.velocity = new Vector2(movementX * currentSpeed, rb.velocity.y);
     }
 
+    // jump player veritcally
     void JumpPlayer()
     {
         if (jump)
@@ -75,13 +75,29 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             jump = false;
         }
+    }
 
-        if(rb.velocity.y < 0)
+    // jump player in a direction
+    void DirectedJumpPlayer()
+    {
+        if (jump && movementX != 0)
+        {
+            Debug.Log("Directed Jump");
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            jump = false;
+            while (!IsGrounded())
+            {
+                rb.velocity = new Vector2(movementX * moveSpeed, rb.velocity.y); // movementX multiplied by movespeed instead of current speed 'cause current speed is 0 in air
+            }
+        }
+    }
+
+    // fast fall
+    void MultiplyFall()
+    {
+        if (rb.velocity.y < 0)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
-        } else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         }
     }
 
@@ -117,6 +133,14 @@ public class PlayerMovement : MonoBehaviour
             anim.SetBool("isFalling", true);
         else
             anim.SetBool("isFalling", false);
+    }
+
+    void LockPlayerMoveInAir()
+    {
+        if (IsGrounded())
+            currentSpeed = moveSpeed;
+        else
+            currentSpeed = 0.0f;
     }
 
     private void OnDrawGizmosSelected()
