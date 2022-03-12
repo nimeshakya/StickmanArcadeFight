@@ -11,6 +11,10 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private LayerMask enemylayers;
 
     private bool canAttack = true; // player can attack or not
+    private float attackInterval = 0.25f;
+
+    // different damage for different attack type
+    private float swordAttackDamage = 4.0f;
 
     private void Awake()
     {
@@ -26,10 +30,10 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        AttackInput();
+        AttackEnemy();
     }
 
-    private void AttackInput()
+    private void AttackEnemy()
     {
         // multiple keys can be added for various attacks and respective damages
         if (Input.GetKeyDown(KeyCode.X) && canAttack)
@@ -37,7 +41,7 @@ public class PlayerAttack : MonoBehaviour
             canAttack = false;
             anim.SetTrigger("trigAttack");
 
-            GiveAttackDamage(4.0f); // give damage of 4.0f
+            GiveAttackDamage(swordAttackDamage); // give damage of 4.0f
 
             StartCoroutine(CanAttackCoolDown());
         }
@@ -57,7 +61,7 @@ public class PlayerAttack : MonoBehaviour
 
     IEnumerator CanAttackCoolDown()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(attackInterval);
         canAttack = true;
     }
 
