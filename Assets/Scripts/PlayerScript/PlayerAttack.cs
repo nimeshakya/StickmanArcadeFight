@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     private Animator anim;
+    private EnemyController enemyController;
 
     [SerializeField] private Transform hitCheckPoint;
     [SerializeField] private float hitCheckRadius = 5.0f;
@@ -12,6 +13,7 @@ public class PlayerAttack : MonoBehaviour
 
     private bool canAttack = true; // player can attack or not
     private float attackInterval = 0.25f;
+    private float canAttackTimeWhenHit = 0.4f; // time till player can counter attack when enemy gives damage
 
     // different damage for different attack type
     private float swordAttackDamage = 4.0f;
@@ -19,6 +21,7 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
+        enemyController = GameObject.FindWithTag("Enemy").GetComponent<EnemyController>();
     }
 
     // Start is called before the first frame update
@@ -55,13 +58,21 @@ public class PlayerAttack : MonoBehaviour
         {
             // if the enemy in enemy layer has tag of "Enemy", give damage
             if (enemy.CompareTag("Enemy"))
-                enemy.GetComponent<EnemyController>().TakeDamage(amount);
+                enemyController.TakeDamage(swordAttackDamage);
         }
     }
 
     IEnumerator CanAttackCoolDown()
     {
         yield return new WaitForSeconds(attackInterval);
+        canAttack = true;
+    }
+
+    // how long player cannot attack when enemy is attacking (giving damgage) the player
+    public IEnumerator CanAttackAfterDamageCoolDown()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(canAttackTimeWhenHit);
         canAttack = true;
     }
 

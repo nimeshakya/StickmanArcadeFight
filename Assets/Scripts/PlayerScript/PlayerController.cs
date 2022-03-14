@@ -7,8 +7,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
 
     private float maxHealth = 40.0f;
-    private float currenthealth;
-    public float _currentHealth { get; private set; }
+    private float currentHealth;
 
     private void Awake()
     {
@@ -17,12 +16,25 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        _currentHealth = maxHealth;
+        currentHealth = maxHealth;
     }
 
     public void TakeDamage(float amount)
     {
-        _currentHealth = Mathf.Clamp(_currentHealth - amount, 0.0f, maxHealth);
-        Debug.Log($"Damage: {_currentHealth}/{maxHealth}");
+        currentHealth = Mathf.Clamp(currentHealth - amount, 0.0f, maxHealth);
+        anim.SetTrigger("trigHit");
+        StartCoroutine(GetComponent<PlayerAttack>().CanAttackAfterDamageCoolDown());
+
+        if (currentHealth <= 0.0f)
+            Death();
+
+        Debug.Log($"Damage: {currentHealth}/{maxHealth}");
+    }
+
+    private void Death()
+    {
+        anim.SetBool("isDead", true);
+
+        // show game over panel ans such
     }
 }

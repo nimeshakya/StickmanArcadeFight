@@ -12,7 +12,9 @@ public class EnemyAttackScript : MonoBehaviour
     private PlayerController playerController;
 
     private bool canAttack = true; // if can attack or not (after cooldown)
-    private float attackInterval = 0.25f;
+    private float attackInterval = 0.25f; // interval of each attack
+    private float canAttackTimeWhenHit = 0.4f; // time till enemy can counter attack when player gives damage
+
 
     // different damage for different attack type
     private float swordAttackDamage = 4.0f;
@@ -58,6 +60,13 @@ public class EnemyAttackScript : MonoBehaviour
     IEnumerator CanAttackCoolDown()
     {
         yield return new WaitForSeconds(attackInterval);
+        canAttack = true;
+    }
+
+    public IEnumerator CanAttackAfterDamageCoolDown()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(canAttackTimeWhenHit);
         canAttack = true;
     }
 

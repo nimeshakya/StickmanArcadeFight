@@ -33,6 +33,7 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(float amount)
     {
         anim.SetTrigger("trigHit");
+        StartCoroutine(GetComponent<EnemyAttackScript>().CanAttackAfterDamageCoolDown());
         currentHealth = Mathf.Clamp(currentHealth - amount, 0.0f, maxHealth);
 
         if (currentHealth <= 0.0f)
