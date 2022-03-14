@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     private Animator anim;
+    private PlayerController playerController;
     private EnemyController enemyController;
 
     [SerializeField] private Transform hitCheckPoint;
@@ -12,6 +13,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private LayerMask enemylayers;
 
     private bool canAttack = true; // player can attack or not
+    public bool _canAttack { get { return canAttack; } set { canAttack = value; } }
     private float attackInterval = 0.25f;
     private float canAttackTimeWhenHit = 0.4f; // time till player can counter attack when enemy gives damage
 
@@ -21,6 +23,7 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
+        playerController = GetComponent<PlayerController>();
         enemyController = GameObject.FindWithTag("Enemy").GetComponent<EnemyController>();
     }
 
@@ -33,7 +36,16 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CanAttackCondition();
         AttackEnemy();
+    }
+
+    private void CanAttackCondition()
+    {
+        if (playerController._isBlocking)
+            canAttack = false;
+        else
+            canAttack = true;
     }
 
     private void AttackEnemy()
@@ -73,7 +85,8 @@ public class PlayerAttack : MonoBehaviour
     {
         canAttack = false;
         yield return new WaitForSeconds(canAttackTimeWhenHit);
-        canAttack = true;
+        if(!playerController._isBlocking)
+            canAttack = true;
     }
 
     private void OnDrawGizmosSelected()

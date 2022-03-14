@@ -12,6 +12,7 @@ public class EnemyAttackScript : MonoBehaviour
     private PlayerController playerController;
 
     private bool canAttack = true; // if can attack or not (after cooldown)
+    public bool _canAttack { get { return canAttack; } }
     private float attackInterval = 0.25f; // interval of each attack
     private float canAttackTimeWhenHit = 0.4f; // time till enemy can counter attack when player gives damage
 
