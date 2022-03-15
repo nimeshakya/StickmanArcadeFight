@@ -44,7 +44,8 @@ public class PlayerController : MonoBehaviour
         else
         {
             currentHealth = Mathf.Clamp(currentHealth - amount, 0.0f, maxHealth);
-            StartCoroutine(CanBlockCooldown()); // player is not blocking and takes damage, player must wait till they can block
+            StopCoroutine(CanBlockCooldown()); // stop previous cooldown time
+            StartCoroutine(CanBlockCooldown()); // if player is not blocking and takes damage, player must wait till they can block
         }
 
         anim.SetTrigger("trigHit");

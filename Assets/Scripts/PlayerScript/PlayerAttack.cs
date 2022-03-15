@@ -16,6 +16,7 @@ public class PlayerAttack : MonoBehaviour
     public bool _canAttack { get { return canAttack; } set { canAttack = value; } }
     private float attackInterval = 0.25f;
     private float canAttackTimeWhenHit = 0.4f; // time till player can counter attack when enemy gives damage
+    private bool isCanAttackCoolDownRunning = false; // if the cann attack cooldown after taking damage running
 
     // different damage for different attack type
     private float swordAttackDamage = 4.0f;
@@ -43,6 +44,14 @@ public class PlayerAttack : MonoBehaviour
     private void CanAttackCondition()
     {
         if (playerController._isBlocking)
+            canAttack = false;
+        else
+            CanAttackAfterDamageContdition();
+    }
+
+    private void CanAttackAfterDamageContdition()
+    {
+        if (isCanAttackCoolDownRunning)
             canAttack = false;
         else
             canAttack = true;
@@ -83,10 +92,11 @@ public class PlayerAttack : MonoBehaviour
     // how long player cannot attack when enemy is attacking (giving damgage) the player
     public IEnumerator CanAttackAfterDamageCoolDown()
     {
+        isCanAttackCoolDownRunning = true;
         canAttack = false;
         yield return new WaitForSeconds(canAttackTimeWhenHit);
-        if(!playerController._isBlocking)
-            canAttack = true;
+        canAttack = true;
+        isCanAttackCoolDownRunning = false;
     }
 
     private void OnDrawGizmosSelected()
