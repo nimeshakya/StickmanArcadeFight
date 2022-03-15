@@ -487,7 +487,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32fc488f0559b249af6c912c338abeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 0
+  damageCheckCollider: {fileID: 958764107}
+  characterBlockerCollider: {fileID: 403869644}
+  playerCollider: {fileID: 1974452154}
+  playerDamageCheckCollider: {fileID: 1727318380}
+  playerCharacterBlockerCollider: {fileID: 403772085}
 --- !u!50 &1645351271
 Rigidbody2D:
   serializedVersion: 4
@@ -1046,6 +1050,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c0c5cdf63a4b5a43bf6a0d36b14dd38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damageCheckCollider: {fileID: 1727318380}
+  characterBlockerCollider: {fileID: 403772085}
+  enemyCollider: {fileID: 1645351272}
+  enemyDamageCheckCollider: {fileID: 958764107}
+  enemyCharacterBlockerCollider: {fileID: 403869644}
 --- !u!114 &1974452160
 MonoBehaviour:
   m_ObjectHideFlags: 0

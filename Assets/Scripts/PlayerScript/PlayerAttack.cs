@@ -85,8 +85,10 @@ public class PlayerAttack : MonoBehaviour
 
     IEnumerator CanAttackCoolDown()
     {
+        isCanAttackCoolDownRunning = true;
         yield return new WaitForSeconds(attackInterval);
         canAttack = true;
+        isCanAttackCoolDownRunning = false;
     }
 
     // how long player cannot attack when enemy is attacking (giving damgage) the player

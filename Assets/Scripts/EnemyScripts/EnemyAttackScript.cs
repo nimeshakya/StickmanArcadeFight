@@ -9,13 +9,14 @@ public class EnemyAttackScript : MonoBehaviour
     [SerializeField] private LayerMask playerLayer;
 
     private Animator anim;
+    private EnemyController enemyController;
     private PlayerController playerController;
 
     private bool canAttack = true; // if can attack or not (after cooldown)
     public bool _canAttack { get { return canAttack; } }
     private float attackInterval = 0.25f; // interval of each attack
     private float canAttackTimeWhenHit = 0.4f; // time till enemy can counter attack when player gives damage
-
+    private bool isCanAttackCooldownRunning = false; // if can attack cool down running or not
 
     // different damage for different attack type
     private float swordAttackDamage = 4.0f;
@@ -23,15 +24,34 @@ public class EnemyAttackScript : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
+        enemyController = GetComponent<EnemyController>();
         playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        CanAttackCondition();
         AttackPlayer();
     }
-    
+
+    private void CanAttackCondition()
+    {
+        if (enemyController._isBlocking)
+            canAttack = false;
+        else
+            CanAttackAfterDamageCondition();
+    }
+
+    private void CanAttackAfterDamageCondition()
+    {
+        if (isCanAttackCooldownRunning)
+            canAttack = false;
+        else
+            canAttack = true;
+    }
+
+
     void AttackPlayer()
     {
         if (Input.GetKeyDown(KeyCode.Keypad0) && canAttack)
@@ -60,15 +80,19 @@ public class EnemyAttackScript : MonoBehaviour
 
     IEnumerator CanAttackCoolDown()
     {
+        isCanAttackCooldownRunning = true;
         yield return new WaitForSeconds(attackInterval);
         canAttack = true;
+        isCanAttackCooldownRunning = false;
     }
 
     public IEnumerator CanAttackAfterDamageCoolDown()
     {
+        isCanAttackCooldownRunning = true;
         canAttack = false;
         yield return new WaitForSeconds(canAttackTimeWhenHit);
         canAttack = true;
+        isCanAttackCooldownRunning = false;
     }
 
     private void OnDrawGizmosSelected()

@@ -5,7 +5,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Animator anim;
-    private EnemyAttackScript enemyAttackScript;
+    [SerializeField] private CapsuleCollider2D damageCheckCollider;
+    [SerializeField] private CapsuleCollider2D characterBlockerCollider;
+    [SerializeField] private CapsuleCollider2D enemyCollider;
+    [SerializeField] private CapsuleCollider2D enemyDamageCheckCollider;
+    [SerializeField] private CapsuleCollider2D enemyCharacterBlockerCollider;
 
     private float maxHealth = 40.0f;
     private float currentHealth;
@@ -18,7 +22,6 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
-        enemyAttackScript = GameObject.FindWithTag("Enemy").GetComponent<EnemyAttackScript>();
     }
 
     private void Start()
@@ -49,6 +52,7 @@ public class PlayerController : MonoBehaviour
         }
 
         anim.SetTrigger("trigHit");
+        StopCoroutine(GetComponent<PlayerAttack>().CanAttackAfterDamageCoolDown());
         StartCoroutine(GetComponent<PlayerAttack>().CanAttackAfterDamageCoolDown());
 
         if (Mathf.Approximately(currentHealth, 0.0f))
@@ -62,15 +66,26 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("isDead", true);
 
         // show game over panel ans such
+
+        // ignore collision with player after death
+        damageCheckCollider.enabled = false;
+        characterBlockerCollider.enabled = false;
+        Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), enemyCollider);
+        Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), enemyDamageCheckCollider);
+        Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), enemyCharacterBlockerCollider);
+
+        // disable all script when dead
+        GetComponent<PlayerAttack>().enabled = false;
+        GetComponent<PlayerMovement>().enabled = false;
+        GetComponent<BlockCharacterCollision>().enabled = false;
+        this.enabled = false;
     }
 
     private void BlockAttack()
     {
         // set blocking animation
-        if (enemyAttackScript._canAttack)
-        {
-            isBlocking = true;
-        }
+
+        isBlocking = true;
     }
 
     private float DamageAfterBlocking(float initialDamage)
