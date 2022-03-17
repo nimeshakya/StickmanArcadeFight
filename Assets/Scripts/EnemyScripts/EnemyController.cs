@@ -7,6 +7,8 @@ public class EnemyController : MonoBehaviour
     private Animator anim;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private Transform playerTransform;
+
     [SerializeField] private CapsuleCollider2D damageCheckCollider;
     [SerializeField] private CapsuleCollider2D characterBlockerCollider;
     [SerializeField] private CapsuleCollider2D playerCollider;
@@ -26,6 +28,7 @@ public class EnemyController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        playerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
     }
 
     // Start is called before the first frame update
@@ -37,10 +40,20 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        LookDirection();
+
         if (canBlock && Input.GetKey(KeyCode.Keypad1))
             BlockAttack();
         else
             isBlocking = false;
+    }
+
+    // makes character looks towards opponent according to opponent's x-position
+    public void LookDirection()
+    {
+        float directionScale = Mathf.Sign(playerTransform.position.x - transform.position.x);
+
+        transform.localScale = new Vector3(directionScale, 1);
     }
 
     public void TakeDamage(float amount)
@@ -92,10 +105,6 @@ public class EnemyController : MonoBehaviour
         Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), playerCollider);
         Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), playerDamageCheckCollider);
         Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), playerCharacterBlockerCollider);
-
-
-        // disable damage checking after death
-        damageCheckCollider.enabled = false;
 
         // disable all scripts
         GetComponent<EnemyAttackScript>().enabled = false;

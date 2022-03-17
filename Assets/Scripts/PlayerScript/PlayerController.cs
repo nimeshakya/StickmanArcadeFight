@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Animator anim;
+    private Transform enemyTransform;
+
     [SerializeField] private CapsuleCollider2D damageCheckCollider;
     [SerializeField] private CapsuleCollider2D characterBlockerCollider;
     [SerializeField] private CapsuleCollider2D enemyCollider;
@@ -22,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
+        enemyTransform = GameObject.FindWithTag("Enemy").GetComponent<Transform>();
     }
 
     private void Start()
@@ -31,6 +34,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        LookDirection(); // makes player look towards enemy according to position of the enemy
         if (canBlock && Input.GetKey(KeyCode.B))
         {
             BlockAttack();
@@ -38,6 +42,14 @@ public class PlayerController : MonoBehaviour
         {
             isBlocking = false;
         }
+    }
+
+    // function to makes player look towards enemy according to position of the enemy
+    private void LookDirection()
+    {
+        float directionScale = Mathf.Sign(enemyTransform.position.x - transform.position.x);
+
+        transform.localScale = new Vector2(directionScale, 1);
     }
 
     public void TakeDamage(float amount)

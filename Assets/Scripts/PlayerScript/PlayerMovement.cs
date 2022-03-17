@@ -15,17 +15,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayers; // all ground layers
 
     private Rigidbody2D rb;
-    private CapsuleCollider2D capsuleCollider2D;
     private SpriteRenderer sr;
     private Animator anim;
 
     private float movementX;
     private bool jump;
+    private bool directedJump;
+    private float directedJumpDirection;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        capsuleCollider2D = GetComponent<CapsuleCollider2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
     }
@@ -47,16 +47,23 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
-        DirectedJumpPlayer();
         JumpPlayer();
         MultiplyFall();
     }
 
     void PlayerMoveInput()
     {
-        movementX = Input.GetAxisRaw("Horizontal");
+        if(IsGrounded()) // move player x or -x only whne grounded
+            movementX = Input.GetAxisRaw("Horizontal");
 
-        if (IsGrounded() && Input.GetButtonDown("Jump"))
+        if(IsGrounded() && (Input.GetButtonDown("Jump") && Input.GetAxisRaw("Horizontal") != 0))
+        {
+            jump = true;
+            directedJump = true;
+
+            directedJumpDirection = Input.GetAxisRaw("Horizontal");
+        }
+        else if (IsGrounded() && Input.GetButtonDown("Jump"))
         {
             jump = true;
         }
@@ -70,25 +77,23 @@ public class PlayerMovement : MonoBehaviour
     // jump player veritcally
     void JumpPlayer()
     {
+        if(jump && directedJump)
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            
+            if(directedJumpDirection > 0)
+                rb.AddForce(Vector2.right * jumpForce, ForceMode2D.Impulse);
+            else if(directedJumpDirection < 0)
+                rb.AddForce(Vector2.left * jumpForce, ForceMode2D.Impulse);
+
+            jump = false;
+            directedJump = false;
+        }
+
         if (jump)
         {
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             jump = false;
-        }
-    }
-
-    // jump player in a direction
-    void DirectedJumpPlayer()
-    {
-        if (jump && movementX != 0)
-        {
-            Debug.Log("Directed Jump");
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            jump = false;
-            while (!IsGrounded())
-            {
-                rb.velocity = new Vector2(movementX * moveSpeed, rb.velocity.y); // movementX multiplied by movespeed instead of current speed 'cause current speed is 0 in air
-            }
         }
     }
 

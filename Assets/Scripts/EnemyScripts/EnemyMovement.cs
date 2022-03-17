@@ -8,13 +8,16 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private float groundCheckRadius;
     [SerializeField] private LayerMask groundLayers;
 
-    private float gravity = 10f;
-
     private Rigidbody2D rb;
+    private Animator anim;
+
+    private float moveSpeed = 10.0f;
+    private float movementX;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     // Start is called before the first frame update
@@ -26,15 +29,28 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ApplyGravity();
+        GetMovementInput();
+        PlayerAnimation();
     }
 
-    void ApplyGravity()
+    private void FixedUpdate()
     {
-        if (!IsGrounded())
-        {
-            rb.velocity = Vector2.up * gravity;
-        }
+        MoveEnemy();
+    }
+
+    private void GetMovementInput()
+    {
+        if (IsGrounded() && Input.GetKey(KeyCode.J))
+            movementX = -1;
+        else if (IsGrounded() && Input.GetKey(KeyCode.L))
+            movementX = 1;
+        else
+            movementX = 0;
+    }
+
+    private void MoveEnemy()
+    {
+        rb.velocity = new Vector2(movementX * moveSpeed, rb.velocity.y);
     }
 
     private bool IsGrounded()
@@ -42,6 +58,17 @@ public class EnemyMovement : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheckPoint.position, groundCheckRadius, groundLayers);
 
         return colliders != null;
+    }
+
+    private void PlayerAnimation()
+    {
+        if(movementX != 0)
+        {
+            anim.SetBool("isRunning", true);
+        } else
+        {
+            anim.SetBool("isRunning", false);
+        }
     }
 
     private void OnDrawGizmosSelected()
