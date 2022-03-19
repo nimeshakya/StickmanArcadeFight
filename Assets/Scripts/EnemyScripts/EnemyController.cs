@@ -23,6 +23,9 @@ public class EnemyController : MonoBehaviour
     public bool _isBlocking { get { return isBlocking; } }
     private float timeTillCanBlock = 0.5f;
 
+    private bool isDead; // if character is dead or not
+    public bool _isDead { get { return isDead; } set { isDead = value; } }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -35,6 +38,7 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
+        _isDead = false;
     }
 
     // Update is called once per frame
@@ -95,6 +99,7 @@ public class EnemyController : MonoBehaviour
 
     private void Death()
     {
+        _isDead = true;
         anim.SetBool("isDead", true);
 
         // load game over panel and such

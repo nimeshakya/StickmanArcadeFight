@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
     public bool _isBlocking { get { return isBlocking; } }
     private float timeTillCanBlock = 0.5f;
 
+    private bool isDead; // if character is dead or not
+    public bool _isDead { get { return isDead; } set { isDead = value; } }
+
     private void Awake()
     {
         anim = GetComponent<Animator>();
@@ -30,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         currentHealth = maxHealth;
+        _isDead = false;
     }
 
     private void Update()
@@ -75,6 +79,7 @@ public class PlayerController : MonoBehaviour
 
     private void Death()
     {
+        _isDead = true;
         anim.SetBool("isDead", true);
 
         // show game over panel ans such
