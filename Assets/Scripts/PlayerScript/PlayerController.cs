@@ -70,8 +70,7 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Approximately(currentHealth, 0.0f))
             Death();
 
-        PlayerHealthBarUI.instance.SetValue(currentHealth / maxHealth);
-        Debug.Log($"Damage: {currentHealth}/{maxHealth}");
+        PlayerHealthBarUI.instance.SetValue(currentHealth / maxHealth); // change UI health bar
     }
 
     private void Death()
