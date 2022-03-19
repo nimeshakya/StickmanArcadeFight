@@ -76,6 +76,7 @@ public class EnemyController : MonoBehaviour
         if (Mathf.Approximately(currentHealth, 0.0f))
             Death();
 
+        EnemyHealthBarUI.instance.SetValue(currentHealth / maxHealth);
         Debug.Log($"Damaged: {currentHealth} / {maxHealth}");
     }
 
